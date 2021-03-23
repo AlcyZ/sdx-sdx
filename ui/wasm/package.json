@@ -1,0 +1,15 @@
+{
+  "name": "sdx-sdx",
+  "collaborators": [
+    "Tobias Schindler <t.schindler@gambio.de>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "sdx_sdx_bg.wasm",
+    "sdx_sdx.js",
+    "sdx_sdx.d.ts"
+  ],
+  "module": "sdx_sdx.js",
+  "types": "sdx_sdx.d.ts",
+  "sideEffects": false
+}
