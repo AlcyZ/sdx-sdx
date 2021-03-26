@@ -25,17 +25,15 @@ export default defineComponent({
   },
 
   props: {
-    startValue: {
+    code: {
       required: true,
       type: String,
     }
   },
 
   watch: {
-    startValue(newValue) {
-      if(this.editor) {
-        this.editor.setValue(newValue);
-      }
+    code() {
+      this.createCodeMirror();
     }
   },
 
@@ -44,21 +42,27 @@ export default defineComponent({
       if (this.editor) {
         this.$emit('compile', this.editor.getValue());
       }
+    },
+
+    createCodeMirror(): void {
+      const editor = document.querySelector('.editor');
+
+      if (editor) {
+        editor.innerHTML = '';
+
+        this.editor = CodeMirror(editor, {
+          mode: 'x-shader/x-fragment',
+          value: this.code,
+          theme: 'darcula',
+          lineNumbers: true,
+          autoCloseBrackets: true,
+        });
+      }
     }
   },
 
   mounted() {
-    const editor = document.querySelector('.editor');
-
-    if (editor) {
-      this.editor = CodeMirror(editor, {
-        mode: 'x-shader/x-fragment',
-        value: this.startValue,
-        theme: 'darcula',
-        lineNumbers: true,
-        autoCloseBrackets: true,
-      });
-    }
+    this.createCodeMirror();
   }
 });
 </script>

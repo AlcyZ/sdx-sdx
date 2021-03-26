@@ -12,7 +12,7 @@
 
   <div class="right">
     <SdxEditor
-        :start-value="code"
+        :code="code"
         @compile="compile"
     />
   </div>
