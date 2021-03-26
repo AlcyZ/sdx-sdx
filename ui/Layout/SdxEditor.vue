@@ -31,6 +31,14 @@ export default defineComponent({
     }
   },
 
+  watch: {
+    startValue(newValue) {
+      if(this.editor) {
+        this.editor.setValue(newValue);
+      }
+    }
+  },
+
   methods: {
     compile() {
       if (this.editor) {

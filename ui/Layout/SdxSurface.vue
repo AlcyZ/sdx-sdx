@@ -15,6 +15,14 @@
 import {defineComponent} from 'vue';
 import init, {Surface} from '../wasm/sdx_sdx';
 
+const getCursorPosition = (canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } => {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = rect.height - (event.clientY - rect.top);
+
+  return {x, y};
+}
+
 export default defineComponent({
   name: 'SdxSurface',
 
@@ -24,6 +32,8 @@ export default defineComponent({
       paused: false,
       surface: undefined,
       animationId: undefined,
+      canvas: null,
+      mousePressed: false,
     }
   },
 
@@ -35,8 +45,11 @@ export default defineComponent({
   },
 
   watch: {
-    code(newValue: string): void {
+    code(): void {
       window.cancelAnimationFrame(this.animationId);
+      if (this.canvas) {
+        this.canvas.removeEventListener('mouse', this.updateMousePosition);
+      }
       this.surface.clear();
       this.start();
     }
@@ -66,16 +79,46 @@ export default defineComponent({
       if (this.surface) {
         this.surface.free();
       }
-      this.surface = Surface.new('#surface');
-      this.surface.setup_fs_program(this.code);
-
+      this.surface = Surface.new('#surface', this.code);
       this.animationId = window.requestAnimationFrame(this.render);
+    },
+
+    mouseUp(): void {
+      this.mousePressed = false;
+    },
+
+    mouseDown(event: MouseEvent): void {
+      this.mousePressed = true;
+      this.updateMousePosition(event);
+    },
+
+    mouseMove(event: MouseEvent): void {
+      if (!this.mousePressed) {
+        return;
+      }
+      this.updateMousePosition(event);
+    },
+
+    updateMousePosition(event: MouseEvent): void {
+      if (this.surface) {
+        const newPos = getCursorPosition(this.canvas, event);
+        this.surface.update_mouse_pos(newPos.x, newPos.y);
+      }
     }
   },
 
   async mounted(): Promise<void> {
-    await init();
+    const canvas = document.getElementById('surface');
+    if (!canvas) {
+      console.error('could not find canvas with id #surface');
+      return;
+    }
+    canvas.addEventListener('mousedown', this.mouseDown);
+    canvas.addEventListener('mouseup', this.mouseUp);
+    canvas.addEventListener('mousemove', this.mouseMove);
 
+    this.canvas = canvas;
+    await init();
     this.start();
   }
 })
@@ -105,7 +148,8 @@ $toolbar-color: #444444;
 
 #surface {
   max-height: $surface-height;
-
   height: $surface-height;
+
+  cursor: pointer;
 }
 </style>

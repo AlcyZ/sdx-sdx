@@ -1,6 +1,9 @@
 <template>
   <header>
-    <SdxHeader/>
+    <SdxHeader
+      :shader-list="shaderList"
+      @compile="compile"
+    />
   </header>
 
   <SdxSurface
@@ -25,35 +28,7 @@ import SdxHeader from './Layout/SdxHeader.vue';
 import SdxFooter from './Layout/SdxFooter.vue';
 import SdxSurface from './Layout/SdxSurface.vue';
 import SdxEditor from './Layout/SdxEditor.vue';
-
-const stFs = `#version 100
-
-precision mediump float;
-
-uniform float iTime;
-uniform vec3 iResolution;
-
-void main() {
-  vec2 uv =  gl_FragCoord.xy/iResolution.xy;
-
-  vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4));
-
-  gl_FragColor = vec4(col, 1.0);
-}`;
-
-const startFs = `#version 100
-precision mediump float;
-uniform float iTime;
-
-void main() {
-    gl_FragColor = vec4(1.0 , 0.0, 0.0, 1.0);
-
-    // float sinT = sin(iTime);
-    // float red = (sinT + 1.0) * 0.5;
-    // float green = fract(sinT);
-    //
-    // gl_FragColor = vec4(red, green, 0.0, 1.0);
-}`;
+import shaders from './shaders';
 
 export default defineComponent({
   name: 'App',
@@ -66,7 +41,8 @@ export default defineComponent({
 
   data() {
     return {
-      code: stFs
+      code: shaders[0].code,
+      shaderList: shaders,
     }
   },
 
