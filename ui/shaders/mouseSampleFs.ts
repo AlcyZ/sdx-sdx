@@ -19,7 +19,7 @@ void main()
 
     vec3 col = vec3(0.0, 0.0, 0.5);
 
-    col.r = smoothstep( 0.2, 0.21, length(uv - ms) );
+    col.r = smoothstep( 0.2, 0.201, length(uv - ms) );
 
     // Output to screen
     gl_FragColor = vec4(col,1.0);

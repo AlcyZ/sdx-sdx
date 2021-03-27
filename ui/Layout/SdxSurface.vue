@@ -1,12 +1,10 @@
 <!--suppress TypeScriptValidateTypes -->
 <template>
-  <div class="h-100 d-flex justify-content-center">
-    <div class="surface-container d-flex flex-column">
-      <canvas id="surface"></canvas>
-      <div class="toolbar">
-        <button @click="play" v-if="paused"><i class="bi bi-play"></i></button>
-        <button @click="pause" v-else><i class="bi bi-pause"></i></button>
-      </div>
+  <div class="render-surface d-flex flex-column">
+    <canvas id="surface"></canvas>
+    <div class="toolbar d-flex">
+      <button @click="play" v-if="paused"><i class="bi bi-play"></i></button>
+      <button @click="pause" v-else><i class="bi bi-pause"></i></button>
     </div>
   </div>
 </template>
@@ -15,7 +13,12 @@
 import {defineComponent} from 'vue';
 import init, {Surface} from '../wasm/sdx_sdx';
 
-const getCursorPosition = (canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } => {
+interface Position2D {
+  x: number;
+  y: number;
+}
+
+const getCursorPosition = (canvas: HTMLCanvasElement, event: MouseEvent): Position2D => {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = rect.height - (event.clientY - rect.top);
@@ -23,17 +26,36 @@ const getCursorPosition = (canvas: HTMLCanvasElement, event: MouseEvent): { x: n
   return {x, y};
 }
 
+const getTouchPosition = (canvas: HTMLCanvasElement, event: TouchEvent): Position2D => {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.touches[0].clientX - rect.left;
+  const y = rect.height - (event.touches[0].clientY - rect.top);
+
+  return {x, y};
+}
+
+interface SurfaceData {
+  time: number;
+  paused: boolean;
+  surface?: Surface,
+  animationId?: number;
+  canvas?: HTMLCanvasElement,
+  mousePressed: boolean;
+  touchPressed: boolean;
+}
+
 export default defineComponent({
   name: 'SdxSurface',
 
-  data() {
+  data(): SurfaceData {
     return {
       time: 0,
       paused: false,
       surface: undefined,
       animationId: undefined,
-      canvas: null,
+      canvas: undefined,
       mousePressed: false,
+      touchPressed: false,
     }
   },
 
@@ -46,11 +68,8 @@ export default defineComponent({
 
   watch: {
     code(): void {
-      window.cancelAnimationFrame(this.animationId);
-      if (this.canvas) {
-        this.canvas.removeEventListener('mouse', this.updateMousePosition);
-      }
-      this.surface.clear();
+      window.cancelAnimationFrame(this.animationId as number);
+      this.surface?.clear();
       this.start();
     }
   },
@@ -71,14 +90,12 @@ export default defineComponent({
       }
 
       this.time += 1 / 60;
-      this.surface.render(this.time);
+      this.surface?.render(this.time);
       this.animationId = window.requestAnimationFrame(this.render);
     },
 
     start(): void {
-      if (this.surface) {
-        this.surface.free();
-      }
+      this.surface?.free();
       this.surface = Surface.new('#surface', this.code);
       this.animationId = window.requestAnimationFrame(this.render);
     },
@@ -99,9 +116,28 @@ export default defineComponent({
       this.updateMousePosition(event);
     },
 
-    updateMousePosition(event: MouseEvent): void {
+    touchEnd(): void {
+      this.touchPressed = false;
+    },
+
+    touchStart(event: TouchEvent): void {
+      this.touchPressed = true;
+      this.updateMousePosition(event);
+    },
+
+    touchMove(event: TouchEvent): void {
+      if (!this.touchPressed) {
+        return;
+      }
+      this.updateMousePosition(event);
+    },
+
+    updateMousePosition(event: MouseEvent | TouchEvent): void {
       if (this.surface) {
-        const newPos = getCursorPosition(this.canvas, event);
+        const newPos = event instanceof MouseEvent
+            ? getCursorPosition(this.canvas as HTMLCanvasElement, event)
+            : getTouchPosition(this.canvas as HTMLCanvasElement, event);
+
         this.surface.update_mouse_pos(newPos.x, newPos.y);
       }
     }
@@ -109,13 +145,17 @@ export default defineComponent({
 
   async mounted(): Promise<void> {
     const canvas = document.getElementById('surface');
-    if (!canvas) {
+    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
       console.error('could not find canvas with id #surface');
       return;
     }
+
     canvas.addEventListener('mousedown', this.mouseDown);
     canvas.addEventListener('mouseup', this.mouseUp);
     canvas.addEventListener('mousemove', this.mouseMove);
+    canvas.addEventListener('touchstart', this.touchStart);
+    canvas.addEventListener('touchend', this.touchEnd);
+    canvas.addEventListener('touchmove', this.touchMove);
 
     this.canvas = canvas;
     await init();
@@ -125,31 +165,25 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "variables";
+@import "toolbar";
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/mixins";
 
-$toolbar-color: #444444;
-
-.toolbar {
-  background-color: $toolbar-color;
-
-  button {
-    color: #DDDDDD;
-    background-color: lighten($toolbar-color, 10);
-
-    border: 1px solid $toolbar-color;
-    border-radius: 0;
-    padding: 0.4rem 1rem;
-
-    &:active {
-      background-color: lighten($toolbar-color, 20);
-    }
+@include media-breakpoint-up(xl) {
+  .render-surface {
+    min-height: 600px;
   }
 }
 
 #surface {
-  max-height: $surface-height;
-  height: $surface-height;
-
+  width: 100%;
+  height: 100%;
+  max-height: 375px;
   cursor: pointer;
+
+  @include media-breakpoint-up(xl) {
+    max-height: 1000px;
+  }
 }
 </style>

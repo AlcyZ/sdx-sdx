@@ -1,0 +1,17 @@
+$toolbar-color: #444444;
+.toolbar {
+  background-color: $toolbar-color;
+
+  button {
+    color: #dddddd;
+    background-color: lighten($toolbar-color, 10);
+
+    border: 1px solid $toolbar-color;
+    border-radius: 0;
+    padding: 0.4rem 1rem;
+
+    &:active {
+      background-color: lighten($toolbar-color, 20);
+    }
+  }
+}

@@ -1,25 +1,34 @@
 <template>
-  <header>
-    <SdxHeader
+  <SdxHeader
       :shader-list="shaderList"
       @compile="compile"
-    />
-  </header>
+  />
 
   <SdxSurface
       :code="code"
   />
 
-  <div class="right">
-    <SdxEditor
-        :code="code"
-        @compile="compile"
-    />
-  </div>
+  <SdxEditor
+      @compile="compile"
+      :code="code"
+      :shader-list="shaderList"
+  />
 
-  <footer>
-    <SdxFooter/>
-  </footer>
+
+  <!--  <div class="ide">editor</div>-->
+  <!--  <SdxSurface-->
+  <!--      :code="code"-->
+  <!--  />-->
+
+  <!--  <div class="right">-->
+  <!--    <SdxEditor-->
+  <!--        :code="code"-->
+  <!--        @compile="compile"-->
+  <!--    />-->
+  <!--  </div>-->
+
+  <SdxFooter/>
+
 </template>
 
 <script lang="ts">
@@ -41,7 +50,7 @@ export default defineComponent({
 
   data() {
     return {
-      code: shaders[0].code,
+      code: shaders[2].code,
       shaderList: shaders,
     }
   },
@@ -55,18 +64,42 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/mixins";
+
+body {
+  background-color: #f8f9fa;
+}
+
 #app {
   display: grid;
-  grid-template: auto 1fr auto / 1fr 1fr;
+
   height: 100vh;
   width: 100vw;
+  //grid-template: auto 1fr auto / 1fr 1fr;
+
+  grid-template: auto 1fr 1fr auto / 1fr;
 
   header {
-    grid-column: 1 / 3;
+    grid-column: 1 / 2;
   }
 
   footer {
-    grid-column: 1 / 3;
+    grid-column: 1 / 2;
+  }
+
+  @include media-breakpoint-up(xl) {
+    grid-template: auto auto 1fr / 1fr 1fr;
+
+    header {
+      grid-column: 1 / 3;
+    }
+
+    footer {
+      grid-column: 1 / 3;
+    }
   }
 }
+
 </style>
