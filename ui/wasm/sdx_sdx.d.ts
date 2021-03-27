@@ -6,13 +6,15 @@ export class Surface {
   free(): void;
 /**
 * @param {string} query_selector
+* @param {string} fs_code
 * @returns {Surface}
 */
-  static new(query_selector: string): Surface;
+  static new(query_selector: string, fs_code: string): Surface;
 /**
-* @param {string} fs_code
+* @param {number} x_pos
+* @param {number} y_pos
 */
-  setup_fs_program(fs_code: string): void;
+  update_mouse_pos(x_pos: number, y_pos: number): void;
 /**
 * @param {number} time
 */
@@ -27,8 +29,8 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_surface_free: (a: number) => void;
-  readonly surface_new: (a: number, b: number) => number;
-  readonly surface_setup_fs_program: (a: number, b: number, c: number) => void;
+  readonly surface_new: (a: number, b: number, c: number, d: number) => number;
+  readonly surface_update_mouse_pos: (a: number, b: number, c: number) => void;
   readonly surface_render: (a: number, b: number) => void;
   readonly surface_clear: (a: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;

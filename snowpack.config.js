@@ -3,6 +3,11 @@ module.exports = {
 		"ui": "/"
 	},
 	
+	optimize: {
+		minify: true,
+		bundle: true
+	},
+	
 	plugins: [
 		'@snowpack/plugin-typescript',
 		'@snowpack/plugin-vue',

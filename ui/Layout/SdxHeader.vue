@@ -1,13 +1,9 @@
 <template>
-  <div class="header d-flex">
-    <div class="item brand mx-4">Sdx Shader</div>
-    <div class="item flex-grow-1">
-      <span>Educational project - Heavily inspired by  <a href="https://www.shadertoy.com" target="_blank">ShaderToy</a></span>
-    </div>
-    <div class="item mx-4">
-      <a href="#">New</a>
-    </div>
-  </div>
+
+  <header class="text-center">
+    <h4>Sdx Shader</h4>
+  </header>
+
 </template>
 
 <script lang="ts">
@@ -19,18 +15,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.header {
-  height: 70px;
-  background-color: #eeeeee;
-
-  .item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    a {
-      text-decoration: none;
-    }
-  }
+header {
+  background-color: #393737;
+  color: #eee9e9;
+  padding: 1.2rem 0;
 }
 </style>

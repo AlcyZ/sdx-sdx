@@ -1,89 +1,140 @@
 <template>
-  <div class="d-flex flex-column h-100">
+  <div class="ide-container">
     <div class="editor"></div>
-    <div class="toolbar">
-      <button @click="compile">Compile</button>
+    <div class="toolbar d-flex">
+      <button @click="compile">
+        <i class="bi bi-play"></i>
+      </button>
+
+      <div class="dropdown ms-auto">
+        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+           data-bs-toggle="dropdown" aria-expanded="false">
+          Shaders
+        </a>
+
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <li v-for="(shader, i) in shaderList" :key="i">
+            <a href="#" class="dropdown-item" v-text="shader.name" @click="compileCode(shader.code)"></a>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, PropType} from 'vue';
 import CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/clike/clike';
 import 'codemirror/theme/darcula.css';
 import 'codemirror/addon/edit/closebrackets';
+import {ShaderCode} from "../shaders";
+
+const BREAKPOINT_MD = 768;
+const getPageWidth = (): number => {
+  return Math.max(
+      document.body.scrollWidth,
+      document.documentElement.scrollWidth,
+      document.body.offsetWidth,
+      document.documentElement.offsetWidth,
+      document.documentElement.clientWidth
+  );
+}
+
+interface EditorData {
+  editor?: CodeMirror.Editor
+}
 
 export default defineComponent({
   name: 'SdxEditor',
 
-  data() {
+  data(): EditorData {
     return {
-      editor: null
+      editor: undefined
     }
   },
 
   props: {
-    startValue: {
+    code: {
       required: true,
       type: String,
+    },
+    shaderList: {
+      required: true,
+      type: Object as PropType<ShaderCode>
+    }
+  },
+
+  watch: {
+    code() {
+      this.createIde();
     }
   },
 
   methods: {
-    compile() {
+    compile(): void {
       if (this.editor) {
         this.$emit('compile', this.editor.getValue());
+      }
+    },
+
+    compileCode(code: string): void {
+      this.$emit('compile', code);
+    },
+
+    createIde(): void {
+      const editor = document.querySelector('.editor');
+
+      if (editor) {
+        editor.innerHTML = '';
+
+        this.editor = CodeMirror(editor as HTMLElement, {
+          mode: 'x-shader/x-fragment',
+          value: this.code,
+          theme: 'darcula',
+          lineNumbers: true,
+          autoCloseBrackets: true,
+        });
+        this.resizeIde();
+      }
+    },
+
+    resizeIde(): void {
+      const surface = document.querySelector('#surface');
+      const codeMirrorElement = document.querySelector('.editor .CodeMirror');
+      if (surface && codeMirrorElement) {
+        const rect = surface.getBoundingClientRect();
+
+        if (getPageWidth() >= BREAKPOINT_MD) {
+          (codeMirrorElement as HTMLElement).style.height = `${rect.height}px`;
+        }
       }
     }
   },
 
   mounted() {
-    const editor = document.querySelector('.editor');
+    this.createIde();
 
-    if (editor) {
-      this.editor = CodeMirror(editor, {
-        mode: 'x-shader/x-fragment',
-        value: this.startValue,
-        theme: 'darcula',
-        lineNumbers: true,
-        autoCloseBrackets: true,
-      });
-    }
+    window.addEventListener('resize', this.resizeIde);
   }
 });
 </script>
 
 <style lang="scss" scoped>
-$toolbar-color: #444444;
+@import "toolbar";
 
-.toolbar {
-  background-color: $toolbar-color;
-
-  button {
-    color: #dddddd;
-    background-color: lighten($toolbar-color, 10);
-
-    border: 1px solid $toolbar-color;
-    border-radius: 0;
-    //outline: none;
-    padding: 0.4rem 1rem;
-
-    &:active {
-      background-color: lighten($toolbar-color, 20);
-    }
-  }
+.ide-container {
+  overflow-x: hidden;
 }
 
 </style>
 
 <style lang="scss">
-@import "variables";
-
 .editor {
   .CodeMirror {
-    height: $surface-height;
+    background-color: green;
   }
 }
 </style>

@@ -1,14 +1,20 @@
 <template>
-  <div class="footer d-flex align-items-center justify-content-center">
-    <div class="content"><h3>IMPORTANT</h3>
-      <p class="align-self-center">This project is heavily inspired by <a href="https://www.shadertoy.com"
-                                                                          target="_blank">ShaderToy</a>.
-        I tried to rebuild some of
-        ShaderToys functionality on my own, using TypeScript and WebAssembly.<br>
-        Because i want to test this project on my IPhone, i will use WebGL 1 instead of WebGL2. But it is likely for me
-        to rebuild this project later, using WebGPU (by utilizing wgpu-rs and WASM).
-      </p></div>
-  </div>
+  <footer class="bg-light d-flex align-items-center">
+    <div class="container my-3">
+      <figure class="text-center">
+        <blockquote class="blockquote">
+          <p>Important:</p>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+          I tried to recreate some of the <a class="text-decoration-none" href="https://www.shadertoy.com"
+                                             target="_blank">ShaderToys</a>
+          functionality myself, using TypeScript and WebAssembly. Since I
+          want to test this project on my IPhone, I will use WebGL1 instead of WebGL2. But it is likely that I will
+          rebuild this project later with WebGPU <cite>(using wgpu-rs and WASM)</cite>.
+        </figcaption>
+      </figure>
+    </div>
+  </footer>
 </template>
 
 <script lang="ts">
@@ -18,12 +24,3 @@ export default defineComponent({
   name: 'SdxFooter',
 })
 </script>
-
-<style lang="scss" scoped>
-
-.footer {
-  height: 180px;
-  background-color: #EEEEEE;
-}
-
-</style>
