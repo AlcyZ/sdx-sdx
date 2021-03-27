@@ -4,8 +4,8 @@ module.exports = {
 	},
 	
 	optimize: {
-		minify: true,
-		bundle: true
+		minify: false,
+		bundle: false,
 	},
 	
 	plugins: [
